@@ -1,0 +1,72 @@
+# Minimal single-binary Loki -- fine for a training cluster's log volume.
+# Not meant for production scale; keeps this simple, per the project's
+# "don't complicate things" theme.
+deploymentMode: SingleBinary
+
+loki:
+  auth_enabled: false
+  commonConfig:
+    replication_factor: 1
+  storage:
+    type: filesystem
+  schemaConfig:
+    configs:
+      - from: "2024-01-01"
+        store: tsdb
+        object_store: filesystem
+        schema: v13
+        index:
+          prefix: index_
+          period: 24h
+  limits_config:
+    retention_period: 72h # 3 days -- enough for an 8-hour training day + buffer
+    allow_structured_metadata: true # required for native OTLP log ingestion
+
+singleBinary:
+  replicas: 1
+  persistence:
+    enabled: true
+    size: 10Gi
+  resources:
+    requests: { cpu: 100m, memory: 256Mi }
+    limits: { cpu: 500m, memory: 512Mi }
+
+# We only need the write/log-storage path -- disable the extra
+# components the chart would otherwise stand up for a scaled-out
+# deployment.
+backend:
+  replicas: 0
+read:
+  replicas: 0
+write:
+  replicas: 0
+
+gateway:
+  enabled: false
+
+test:
+  enabled: false
+
+# These two default to an 8GB memcached each -- way oversized for a
+# training cluster's log volume and bigger than a t3.medium/t3.large even
+# has. Disabling both; Loki works fine without them, just a bit slower on
+# cache-miss reads, which doesn't matter at this scale.
+chunksCache:
+  enabled: false
+resultsCache:
+  enabled: false
+
+# Top-level, not under `monitoring:` (a wrong guess in an earlier pass) --
+# the canary is a nice-to-have synthetic test, not required for logs to
+# actually flow; skipping it avoids extra DaemonSet pod pressure on
+# already pod-count-constrained small instance types.
+lokiCanary:
+  enabled: false
+
+monitoring:
+  serviceMonitor:
+    enabled: false
+  selfMonitoring:
+    enabled: false
+    grafanaAgent:
+      installOperator: false

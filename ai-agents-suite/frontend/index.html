@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ServiceNow AI Agent Suite</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">SN</span>
+      <div>
+        <h1>ServiceNow AI Agent Suite</h1>
+        <p class="subtitle">Training demo — Sessions 3, 5, 6, 7 &amp; 8</p>
+      </div>
+    </div>
+    <div id="status-badges" class="badges"></div>
+  </header>
+
+  <nav class="tabs" id="tabs">
+    <button class="tab active" data-tab="overview">Overview</button>
+    <button class="tab" data-tab="dashboard">Dashboard</button>
+    <button class="tab" data-tab="approvals">Approvals</button>
+    <button class="tab" data-tab="live-monitor">Live Monitor</button>
+    <button class="tab" data-tab="now-assist">Now Assist</button>
+    <button class="tab" data-tab="knowledge">Knowledge Article</button>
+    <button class="tab" data-tab="predictive">Predictive Intelligence</button>
+    <button class="tab" data-tab="password-reset">Password Reset</button>
+    <button class="tab" data-tab="virtual-agent">Virtual Agent</button>
+    <button class="tab" data-tab="process-mining">Process Mining</button>
+  </nav>
+
+  <main id="panels"></main>
+
+  <script src="app.js"></script>
+</body>
+</html>

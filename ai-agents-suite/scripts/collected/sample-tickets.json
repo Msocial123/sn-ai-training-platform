@@ -1,0 +1,98 @@
+[
+  {
+    "id": "INC0010001",
+    "short_description": "Unable to connect to corporate VPN after password reset",
+    "description": "User reports repeated VPN connection failures after resetting their Active Directory password this morning. Error: 'Authentication failed - credentials rejected'. VPN client is Cisco AnyConnect v4.10.",
+    "category": "Network",
+    "subcategory": "VPN",
+    "priority": "High",
+    "assignment_group": "Network Support",
+    "status": "Closed",
+    "created": "2026-08-20T08:12:00Z",
+    "resolution": "Root cause: cached credentials in the VPN client were not refreshed after the AD password reset. Resolution steps: 1) Fully sign out of VPN client, 2) Clear saved credentials in Cisco AnyConnect preferences, 3) Reconnect using the new password, 4) Verify connectivity with a test ping to internal resource. Advised user to allow ~10 minutes for AD replication after any future password change before reconnecting."
+  },
+  {
+    "id": "INC0010002",
+    "short_description": "Password reset request - locked out of account",
+    "description": "User has been locked out of their account after 5 failed login attempts. Needs password reset to regain access to email and internal systems.",
+    "category": "Account Access",
+    "subcategory": "Password Reset",
+    "priority": "Medium",
+    "assignment_group": "Service Desk",
+    "status": "Closed",
+    "created": "2026-08-21T09:30:00Z",
+    "resolution": "Verified user identity via security questions, unlocked account in Active Directory, issued a temporary password with forced change on next login. Confirmed user regained access."
+  },
+  {
+    "id": "INC0010003",
+    "short_description": "VPN drops intermittently during video calls",
+    "description": "User reports the VPN connection drops every 15-20 minutes specifically during Teams video calls, requiring manual reconnection each time.",
+    "category": "Network",
+    "subcategory": "VPN",
+    "priority": "Medium",
+    "assignment_group": "Network Support",
+    "status": "Closed",
+    "created": "2026-08-22T14:05:00Z",
+    "resolution": "Identified MTU mismatch causing packet fragmentation over the VPN tunnel during high-bandwidth video traffic. Adjusted client-side MTU setting from 1500 to 1400 and enabled TCP MSS clamping on the VPN gateway. Issue did not recur in 48h follow-up monitoring."
+  },
+  {
+    "id": "INC0010004",
+    "short_description": "Cannot access shared email mailbox",
+    "description": "User cannot open the shared 'support@company.com' mailbox in Outlook -- gets 'Cannot expand the folder' error.",
+    "category": "Email",
+    "subcategory": "Access",
+    "priority": "Low",
+    "assignment_group": "Email Support",
+    "status": "Closed",
+    "created": "2026-08-23T11:00:00Z",
+    "resolution": "Shared mailbox permissions had not propagated after a recent group membership change. Re-applied Full Access and Send As permissions directly, ran Outlook in /resetfolders mode to force a permissions refresh. Confirmed access restored."
+  },
+  {
+    "id": "INC0010005",
+    "short_description": "New employee onboarding - account and email setup",
+    "description": "New hire starting Monday needs AD account, email mailbox, VPN access, and standard software provisioned.",
+    "category": "Account Access",
+    "subcategory": "Onboarding",
+    "priority": "Medium",
+    "assignment_group": "Service Desk",
+    "status": "Closed",
+    "created": "2026-08-18T10:00:00Z",
+    "resolution": "Provisioned AD account from onboarding template, created mailbox with standard distribution list memberships, issued VPN certificate, and pushed standard software bundle via endpoint management. Confirmed with hiring manager on start date."
+  },
+  {
+    "id": "INC0010006",
+    "short_description": "Printer offline in Finance department",
+    "description": "Shared printer HP-FIN-03 shows offline status for the whole Finance floor, no one can print.",
+    "category": "Hardware",
+    "subcategory": "Printer",
+    "priority": "Low",
+    "assignment_group": "Desktop Support",
+    "status": "Closed",
+    "created": "2026-08-24T13:20:00Z",
+    "resolution": "Printer had lost its static IP lease after a switch reboot. Reassigned static IP via DHCP reservation and restarted the print spooler service on the print server. Verified test print succeeded."
+  },
+  {
+    "id": "INC0010007",
+    "short_description": "Slow VPN performance for remote team",
+    "description": "Multiple users on the remote sales team report very slow file transfer speeds over VPN, though general browsing seems fine.",
+    "category": "Network",
+    "subcategory": "VPN",
+    "priority": "Medium",
+    "assignment_group": "Network Support",
+    "status": "Open",
+    "created": "2026-08-30T09:00:00Z",
+    "resolution": ""
+  },
+  {
+    "id": "INC0010008",
+    "short_description": "Password expired, cannot log into laptop",
+    "description": "User's Windows password expired over the weekend and they cannot log in remotely to reset it (not on VPN yet, chicken-and-egg problem).",
+    "category": "Account Access",
+    "subcategory": "Password Reset",
+    "priority": "High",
+    "assignment_group": "Service Desk",
+    "status": "Open",
+    "created": "2026-08-31T08:00:00Z",
+    "resolution": ""
+  }
+]

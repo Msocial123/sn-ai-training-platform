@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: virtual-agent-demo
+  namespace: ai-agents
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: virtual-agent-demo }
+  template:
+    metadata:
+      labels: { app: virtual-agent-demo }
+    spec:
+      containers:
+        - name: virtual-agent-demo
+          image: python:3.12-slim
+          command: ["sh", "-c"]
+          args:
+            - "pip install --no-cache-dir --quiet -r /app/requirements.txt && exec uvicorn app:app --host 0.0.0.0 --port 8080 --app-dir /app"
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SERVICENOW_INSTANCE_URL
+              valueFrom: { secretKeyRef: { name: servicenow-oauth, key: instance-url, optional: true } }
+            - name: SERVICENOW_CLIENT_ID
+              valueFrom: { secretKeyRef: { name: servicenow-oauth, key: client-id, optional: true } }
+            - name: SERVICENOW_CLIENT_SECRET
+              valueFrom: { secretKeyRef: { name: servicenow-oauth, key: client-secret, optional: true } }
+            - name: ANTHROPIC_API_KEY
+              valueFrom: { secretKeyRef: { name: llm-credentials, key: api-key, optional: true } }
+            - name: AWS_BEARER_TOKEN_BEDROCK
+              valueFrom: { secretKeyRef: { name: bedrock-credentials, key: bearer-token, optional: true } }
+            - name: AWS_BEDROCK_REGION
+              valueFrom: { secretKeyRef: { name: bedrock-credentials, key: region, optional: true } }
+            - name: BEDROCK_MODEL_ID
+              valueFrom: { secretKeyRef: { name: bedrock-credentials, key: model-id, optional: true } }
+          resources:
+            requests: { cpu: 50m, memory: 128Mi }
+            limits: { cpu: 300m, memory: 256Mi }
+          volumeMounts:
+            - { name: src, mountPath: /app/app.py, subPath: app.py }
+            - { name: src, mountPath: /app/requirements.txt, subPath: requirements.txt }
+            - { name: shared, mountPath: /app/shared }
+            - { name: sample-data, mountPath: /app/data }
+          readinessProbe:
+            httpGet: { path: /healthz, port: 8080 }
+            initialDelaySeconds: 8
+            periodSeconds: 5
+      volumes:
+        - name: src
+          configMap: { name: virtual-agent-demo-src }
+        - name: shared
+          configMap: { name: ai-agents-shared-lib }
+        - name: sample-data
+          configMap: { name: ai-agents-sample-data }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: virtual-agent-demo
+  namespace: ai-agents
+spec:
+  selector: { app: virtual-agent-demo }
+  ports:
+    - port: 8080
+      targetPort: 8080

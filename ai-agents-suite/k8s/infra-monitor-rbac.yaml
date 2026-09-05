@@ -1,0 +1,165 @@
+# infra-monitor watches its OWN infrastructure namespaces for real breaks
+# (CrashLoopBackOff, high restart counts) and can delete a crash-looping
+# pod to force its Deployment to recreate it -- the same first response a
+# human on-call engineer would take, and completely reversible (the
+# Deployment immediately replaces it).
+#
+# DELIBERATELY EXCLUDES every participant-* namespace: those are the
+# "break things and learn" exercise namespaces for the 35 training
+# participants (see ../../terraform/namespaces.tf). Auto-healing a
+# participant's intentional breakage would defeat the entire point of
+# that exercise. This monitor only watches/heals the infra WE deployed:
+# ai-agents, trainer, observability, monitoring, kubernetes-dashboard.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: infra-monitor
+  namespace: ai-agents
+---
+# Read-only, cluster-wide -- needed to list pods/events across the
+# specific namespaces above by name (the API itself is cluster-scoped
+# even though we only ever query those 5 namespaces).
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: infra-monitor-read
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "events", "nodes"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: infra-monitor-read
+subjects:
+  - kind: ServiceAccount
+    name: infra-monitor
+    namespace: ai-agents
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: infra-monitor-read
+---
+# Delete permission, namespaced -- one Role+RoleBinding per monitored
+# namespace, so a bug here can never reach outside these 5 namespaces,
+# participant namespaces included.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: infra-monitor-heal
+  namespace: ai-agents
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: infra-monitor-heal
+  namespace: ai-agents
+subjects:
+  - kind: ServiceAccount
+    name: infra-monitor
+    namespace: ai-agents
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: infra-monitor-heal
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: infra-monitor-heal
+  namespace: trainer
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: infra-monitor-heal
+  namespace: trainer
+subjects:
+  - kind: ServiceAccount
+    name: infra-monitor
+    namespace: ai-agents
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: infra-monitor-heal
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: infra-monitor-heal
+  namespace: observability
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: infra-monitor-heal
+  namespace: observability
+subjects:
+  - kind: ServiceAccount
+    name: infra-monitor
+    namespace: ai-agents
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: infra-monitor-heal
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: infra-monitor-heal
+  namespace: monitoring
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: infra-monitor-heal
+  namespace: monitoring
+subjects:
+  - kind: ServiceAccount
+    name: infra-monitor
+    namespace: ai-agents
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: infra-monitor-heal
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: infra-monitor-heal
+  namespace: kubernetes-dashboard
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: infra-monitor-heal
+  namespace: kubernetes-dashboard
+subjects:
+  - kind: ServiceAccount
+    name: infra-monitor
+    namespace: ai-agents
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: infra-monitor-heal

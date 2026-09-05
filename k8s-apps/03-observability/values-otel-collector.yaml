@@ -1,0 +1,41 @@
+# OpenTelemetry Collector as a DaemonSet: tails every pod's container logs
+# on each node, enriches them with Kubernetes metadata (namespace, pod,
+# container, node), and ships them to Loki. This is the "OTel" piece of the
+# stack -- Loki is just the storage backend, Grafana just the viewer.
+mode: daemonset
+
+# The "-k8s" image is a curated subset that does NOT include the `loki`
+# exporter -- that only ships in the full "contrib" distribution.
+image:
+  repository: otel/opentelemetry-collector-contrib
+
+presets:
+  logsCollection:
+    enabled: true
+    includeCollectorLogs: false
+  kubernetesAttributes:
+    enabled: true
+
+resources:
+  requests: { cpu: 50m, memory: 100Mi }
+  limits: { cpu: 200m, memory: 300Mi }
+
+config:
+  # The dedicated `loki` exporter is deprecated/removed from the contrib
+  # distribution -- Loki now ingests OTLP logs natively, so this just uses
+  # the standard otlphttp exporter pointed at Loki's /otlp endpoint.
+  exporters:
+    otlphttp:
+      endpoint: "http://loki.observability.svc.cluster.local:3100/otlp"
+      tls:
+        insecure: true
+  service:
+    pipelines:
+      logs:
+        receivers: [filelog]
+        processors: [k8sattributes, batch]
+        exporters: [otlphttp]
+      # traces/metrics pipelines are left at the chart's defaults (otlp
+      # receiver on :4317/:4318, ready for any app instrumented with an
+      # OpenTelemetry SDK) -- not overridden here since this pass is
+      # focused on the log pipeline specifically.

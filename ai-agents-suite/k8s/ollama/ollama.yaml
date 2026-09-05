@@ -1,0 +1,88 @@
+# Self-hosted LLM via Ollama -- qwen3.8:27b, running entirely on our own
+# infrastructure. No external API, no Bedrock account entitlement gate,
+# full control. Runs only on the dedicated "llm-inference" tainted
+# NodePool (see ../../../terraform/karpenter.tf) -- a single r5.2xlarge
+# (8 vCPU / 64GiB), which is the only node type in this cluster with
+# enough RAM to hold an 18GB model comfortably.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ollama-models
+  namespace: ai-agents
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 60Gi # bumped from 30Gi to fit deepseek-r1:14b (~9GB) alongside
+      # qwen3:8b/qwen3.8:27b -- gp3 supports online expansion, no downtime.
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ollama
+  namespace: ai-agents
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate # ReadWriteOnce PVC -- never run two pods at once
+  selector:
+    matchLabels: { app: ollama }
+  template:
+    metadata:
+      labels: { app: ollama }
+    spec:
+      nodeSelector:
+        role: llm-inference
+      tolerations:
+        - key: "llm-inference"
+          operator: "Equal"
+          value: "true"
+          effect: "NoSchedule"
+      containers:
+        - name: ollama
+          image: ollama/ollama:latest
+          command: ["sh", "-c"]
+          args:
+            - |
+              ollama serve &
+              SERVE_PID=$!
+              echo "Waiting for the Ollama server to accept requests..."
+              until ollama list >/dev/null 2>&1; do sleep 2; done
+              echo "Server is up -- pulling qwen3.8:27b (~18GB, this can take a while on first run)..."
+              ollama pull qwen3.8:27b
+              echo "Pulling qwen3:8b (~5GB) -- a fast, smaller model for latency-sensitive calls like chat..."
+              ollama pull qwen3:8b
+              echo "Models ready."
+              wait $SERVE_PID
+          ports:
+            - containerPort: 11434
+          resources:
+            requests: { cpu: "2", memory: "20Gi" }
+            limits: { cpu: "8", memory: "56Gi" } # leaves ~8GiB headroom on the 64GiB node for the OS/kubelet
+          volumeMounts:
+            - { name: models, mountPath: /root/.ollama }
+          readinessProbe:
+            httpGet: { path: /, port: 11434 }
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 6
+          livenessProbe:
+            httpGet: { path: /, port: 11434 }
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            failureThreshold: 6
+      volumes:
+        - name: models
+          persistentVolumeClaim:
+            claimName: ollama-models
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ollama
+  namespace: ai-agents
+spec:
+  selector: { app: ollama }
+  ports:
+    - port: 11434
+      targetPort: 11434

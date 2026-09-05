@@ -1,0 +1,36 @@
+# Terraform
+terraform/.terraform/
+terraform/terraform.tfstate
+terraform/terraform.tfstate.backup
+terraform/*.tfstate
+terraform/*.tfstate.*
+terraform/.terraform.lock.hcl
+terraform/crash.log
+terraform/terraform.tfvars
+
+# Secrets / credentials -- never committed, regardless of subdirectory
+terraform/keys/
+terraform/kubeconfigs/
+*.pem
+*.key
+.env
+*.env
+**/kubeconfig*.yaml
+**/*credentials*
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Node
+node_modules/
+
+# Generated deliverables (binary output, not source -- keep the repo to code)
+*.pptx
+*.docx
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+terraform/tfplan*

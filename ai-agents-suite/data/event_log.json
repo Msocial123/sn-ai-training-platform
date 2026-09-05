@@ -1,0 +1,50 @@
+[
+  {"case_id": "INC0010001", "events": [
+    {"step": "Created", "timestamp_minutes": 0},
+    {"step": "Categorized", "timestamp_minutes": 2},
+    {"step": "Assigned", "timestamp_minutes": 5},
+    {"step": "In Progress", "timestamp_minutes": 47},
+    {"step": "Resolved", "timestamp_minutes": 62},
+    {"step": "Closed", "timestamp_minutes": 65}
+  ]},
+  {"case_id": "INC0010002", "events": [
+    {"step": "Created", "timestamp_minutes": 0},
+    {"step": "Categorized", "timestamp_minutes": 3},
+    {"step": "Assigned", "timestamp_minutes": 6},
+    {"step": "In Progress", "timestamp_minutes": 40},
+    {"step": "Resolved", "timestamp_minutes": 50},
+    {"step": "Closed", "timestamp_minutes": 52}
+  ]},
+  {"case_id": "INC0010003", "events": [
+    {"step": "Created", "timestamp_minutes": 0},
+    {"step": "Categorized", "timestamp_minutes": 1},
+    {"step": "Assigned", "timestamp_minutes": 4},
+    {"step": "In Progress", "timestamp_minutes": 61},
+    {"step": "Resolved", "timestamp_minutes": 95},
+    {"step": "Closed", "timestamp_minutes": 98}
+  ]},
+  {"case_id": "INC0010004", "events": [
+    {"step": "Created", "timestamp_minutes": 0},
+    {"step": "Categorized", "timestamp_minutes": 2},
+    {"step": "Assigned", "timestamp_minutes": 5},
+    {"step": "In Progress", "timestamp_minutes": 33},
+    {"step": "Resolved", "timestamp_minutes": 41},
+    {"step": "Closed", "timestamp_minutes": 44}
+  ]},
+  {"case_id": "INC0010005", "events": [
+    {"step": "Created", "timestamp_minutes": 0},
+    {"step": "Categorized", "timestamp_minutes": 4},
+    {"step": "Assigned", "timestamp_minutes": 9},
+    {"step": "In Progress", "timestamp_minutes": 55},
+    {"step": "Resolved", "timestamp_minutes": 120},
+    {"step": "Closed", "timestamp_minutes": 124}
+  ]},
+  {"case_id": "INC0010006", "events": [
+    {"step": "Created", "timestamp_minutes": 0},
+    {"step": "Categorized", "timestamp_minutes": 2},
+    {"step": "Assigned", "timestamp_minutes": 5},
+    {"step": "In Progress", "timestamp_minutes": 28},
+    {"step": "Resolved", "timestamp_minutes": 35},
+    {"step": "Closed", "timestamp_minutes": 37}
+  ]}
+]

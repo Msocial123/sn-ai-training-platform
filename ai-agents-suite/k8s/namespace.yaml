@@ -1,0 +1,6 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ai-agents
+  labels:
+    training/purpose: ai-agent-suite

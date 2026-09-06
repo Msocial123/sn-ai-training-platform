@@ -34,3 +34,7 @@ node_modules/
 .DS_Store
 Thumbs.db
 terraform/tfplan*
+
+# Claude Code session/runtime metadata -- not project content, changes on
+# every session and creates spurious diffs if tracked
+.claude/
